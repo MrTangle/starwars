@@ -1,9 +1,7 @@
-from starwars.api import get_people, filter_people
-
+import csv
+import requests
 from flask import Flask
-
-people = get_people()
-nueva_lista = filter_people(people)
+from starwars.api import get_people, ordered_top_ten_by_films, filter_people, order_people_by_height, csv_to_httpbin
 
 app = Flask(__name__)
 
@@ -13,17 +11,14 @@ if __name__ == '__main__':
 
 @app.route("/")
 def index():
-    return dict(welcome="welcome")
+    return get_people()
 
 
 @app.route("/people")
 def get_starwars():
-    from starwars.api import filter_people
-    nueva_lista = filter_people(people)
-    return nueva_lista
-
-
-@app.route("/ord-by-height")
-def order_people():
-    from starwars.api import order_people_by_height
-    return order_people_by_height(nueva_lista)
+    people = get_people()
+    top10_people = ordered_top_ten_by_films(people)
+    filter_list = filter_people(top10_people)
+    final_list = order_people_by_height(filter_list)
+    response = csv_to_httpbin(final_list)
+    return response
